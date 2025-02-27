@@ -1,0 +1,12 @@
+{
+  "name": "bot",
+  "version": "1.0.0",
+  "main": "bot.js.js","scripts": {
+  "start": "node bot.js"
+}
+,
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,0 +1,47 @@
+require("dotenv").config();
+const { Telegraf } = require("telegraf");
+const axios = require("axios");
+
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const ETHERSCAN_API_URL = "https://api.etherscan.io/api";
+
+const bot = new Telegraf(BOT_TOKEN);
+
+// 🔹 Fetch wallet balance from Etherscan
+bot.command("wallet", async (ctx) => {
+    try {
+        const args = ctx.message.text.split(" ");
+        if (args.length < 2) return ctx.reply("❌ Please enter a wallet address: /wallet 0x...");
+
+        const address = args[1];
+
+        // 🔹 Call Etherscan API to get balance
+        const response = await axios.get(`${ETHERSCAN_API_URL}`, {
+            params: {
+                module: "account",
+                action: "balance",
+                address: address,
+                tag: "latest",
+                apikey: ETHERSCAN_API_KEY
+            }
+        });
+
+        if (response.data.status !== "1") {
+            return ctx.reply("❌ Error fetching balance. Please check the wallet address.");
+        }
+
+        // 🔹 Convert balance from Wei to ETH
+        const balance = (parseInt(response.data.result) / 1e18).toFixed(6);
+        ctx.reply(`💰 Balance of ${address}: ${balance} ETH`);
+    } catch (error) {
+        console.error("Wallet Command Error:", error);
+        ctx.reply("❌ An error occurred while fetching the balance.");
+    }
+});
+
+// Start the bot
+bot.launch();
+console.log("🤖 Bot is running...");
+
+
